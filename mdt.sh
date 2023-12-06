@@ -11,4 +11,4 @@ archivo=$1
 MAQUINA_DE_TRAZADOS_Y_COLORES_DIR="../laboratorios/LabSem10/maquina_de_trazados_Y_colores/lib/maquinaTrazados-v0.1.jar"
 
 # Ejecutar el comando para compilar y correr el archivo
-openjml --rac -cp "$MAQUINA_DE_TRAZADOS_Y_COLORES_DIR" Constants.java Utils.java "$archivo".java && openjml-java -cp "$MAQUINA_DE_TRAZADOS_Y_COLORES_DIR":. "$archivo"
+openjml --rac -cp "$MAQUINA_DE_TRAZADOS_Y_COLORES_DIR" DibujosVarios.java Utils.java "$archivo".java && openjml-java -cp "$MAQUINA_DE_TRAZADOS_Y_COLORES_DIR":. "$archivo"
