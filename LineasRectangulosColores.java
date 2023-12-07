@@ -3,6 +3,13 @@ import java.util.Random;
 // import java.util.Scanner;
 
 public class LineasRectangulosColores {
+    /******************************************************/
+    /********************** GLOBALES **********************/
+    /******************************************************/
+
+    public static final int DEFAULT_TABLERO_SIZE = 9;
+	public static int[][] tablero = new int[DEFAULT_TABLERO_SIZE][DEFAULT_TABLERO_SIZE];
+
     /**
      * Enum for objects representation in array indexes
      * constantes para la representacion de los objetos 
@@ -19,14 +26,42 @@ public class LineasRectangulosColores {
     public static final int BOLA_AMARILLA = 6;
     public static final int CANTIDAD_DE_OBJS_EXISTENTES = 7; // cantidad de objetos cuadrado mas 6 circulos
 
-    public static final int DEFAULT_PROXIMOS_OBJETOS_CANTIDAD = 3; // cantidad de objetos a agregar
+    /**
+     * contador_de_objetos: Representa la cantidad de cada objeto en el
+     * tablero, y el indice corresponde al valor del objeto representado en
+     * las constantes.
+     * 
+     * DEFAULT_PROXIMOS_OBJETOS_CANTIDAD: Guarda la cantidad de objetos a
+     * agregar por defecto.
+     * 
+     * proximosObjetos: guarda los proximos objetos a agregar en el tablero es
+     * un array de enteros del 0 al DEFAULT_PROXIMOS_OBJETOS_CANTIDAD
+     */
+    public static int[] contador_de_objetos = {0, 0, 0, 0, 0, 0, 0};
+    public static final int DEFAULT_PROXIMOS_OBJETOS_CANTIDAD = 3;
+    public static int[] proximosObjetos = new int[DEFAULT_PROXIMOS_OBJETOS_CANTIDAD];
 
     /**
-     * indices para la estructura casilla
+     * casillas: se almacenaran las casillas vacias seleccionadas de forma aleatorea.
+     * FILA: indice para la fila en la estructura casilla
+     * COLUMNA: indice para la columna en la estructura casilla
+     *
+     * Lo declaro aca para poder usarlo en la postcondicion.
      */
     public static final int FILA = 0; 
     public static final int COLUMNA = 1;
+    public static int[][] casillas = new int[DEFAULT_PROXIMOS_OBJETOS_CANTIDAD][2];
 
+    /**
+     * Constantes y variables para la configuracion del Panel
+     */
+    public static final int PANEL_BARRA_TITULO_ALTURA = 38; // alto de la barra de titulo 
+    public static final int PANEL_DEFAULT_XMAX = 512;
+    public static final int PANEL_DEFAULT_YMAX = 512;
+    public static final String PANEL_DEFAULT_TITLE = "Lineas Rectangulos Colores";
+    
+    public static int PANEL_YMAX = PANEL_DEFAULT_YMAX;
+    public static int PANEL_XMAX = PANEL_DEFAULT_XMAX;
 
     /*****************************************************************/
     /*************************** UTILITIES ***************************/
@@ -41,18 +76,22 @@ public class LineasRectangulosColores {
         return random.nextInt(n + 1);
     }
 
-    /*****************************************************************/
-    /**************************** TABLERO ****************************/
-    /*****************************************************************/
-	public static final int DEFAULT_TABLERO_SIZE = 9;
-	public static int[][] tablero = new int[DEFAULT_TABLERO_SIZE][DEFAULT_TABLERO_SIZE];
-
+    // Se suma el alto de la barra del titulo para normalizar el cuerpo del panel
     /**
-     * Representa la cantidad de cada objeto en el tablero, y el indice 
-     * corresponde al valor del objeto representado en las constantes
+     * Dado que cuando se abre, la ventana, el YMAX lo toma desde el inicio de la
+     * ventana, no desde el punto (0,0), hay que sumarle la altura de la barra del
+     * titulo al PANEL_YMAX para normalizar la altura del panel editable.
      */
-    public static int[] contador_de_objetos = {0, 0, 0, 0, 0, 0, 0};
-    public static int[] proximosObjetos = new int[3];
+    /*@ requires true;
+      @ ensures \result == (PANEL_YMAX + PANEL_BARRA_TITULO_ALTURA);
+      @*/
+    public static /*@ pure @*/ int normalizedPanelYMAX() {
+        return PANEL_YMAX + PANEL_BARRA_TITULO_ALTURA;
+    }
+
+    /********************************************************************/
+    /************************* LOGICA DEL JUEGO *************************/
+    /********************************************************************/
 
     /**
      * Retorna el objeto en menor cantidad el el objeto. En este caso el indice
@@ -150,14 +189,6 @@ public class LineasRectangulosColores {
     }
 
     /**
-     * en la variable casilla se almacenaran las casillas vacias seleccionadas
-     * de forma aleatorea.
-     *
-     * Lo declaro aca para poder usarlo en la postcondicion.
-     */
-    public static int[][] casillas = new int[DEFAULT_PROXIMOS_OBJETOS_CANTIDAD][2];
-
-    /**
      * Agrega los proximos objetos en casillas vacias en el tablero
      * seleccionadas de manera aleatorea. 
      */
@@ -216,30 +247,6 @@ public class LineasRectangulosColores {
         }
         obtenerProximosObjetos();
         agregarProximosObjetos();
-    }
-
-    /*****************************************************************/
-    /***************************** PANEL *****************************/
-    /*****************************************************************/
-    public static final int PANEL_BARRA_TITULO_ALTURA = 38; // alto de la barra de titulo 
-    public static final int PANEL_DEFAULT_XMAX = 512;
-    public static final int PANEL_DEFAULT_YMAX = 512;
-    public static final String PANEL_DEFAULT_TITLE = "Lineas Rectangulos Colores";
-    
-    public static int PANEL_YMAX = PANEL_DEFAULT_YMAX;
-    public static int PANEL_XMAX = PANEL_DEFAULT_XMAX;
-
-    // Se suma el alto de la barra del titulo para normalizar el cuerpo del panel
-    /**
-     * Dado que cuando se abre, la ventana, el YMAX lo toma desde el inicio de la
-     * ventana, no desde el punto (0,0), hay que sumarle la altura de la barra del
-     * titulo al PANEL_YMAX para normalizar la altura del panel editable.
-     */
-    /*@ requires true;
-      @ ensures \result == (PANEL_YMAX + PANEL_BARRA_TITULO_ALTURA);
-      @*/
-    public static /*@ pure @*/ int normalizedPanelYMAX() {
-        return PANEL_YMAX + PANEL_BARRA_TITULO_ALTURA;
     }
 
     public static void main(String[] args) {
