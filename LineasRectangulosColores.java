@@ -184,12 +184,30 @@ public class LineasRectangulosColores {
         }
     }
 
-    // Procedimiento 1
+    /**
+     * Procedimiento 1: inicializa el tablero colocando los espacios vacios y
+     * los 3 primeros objetos
+     *
+     * * En la postcondicion se evalua que se hayan agregado la cantidad inicial
+     * * de objetos que por defecto es DEFAULT_PROXIMOS_OBJETOS_CANTIDAD.
+     */
+    /*@ requires tablero != null;
+      @ requires proximosObjetos != null;
+      @ ensures DEFAULT_PROXIMOS_OBJETOS_CANTIDAD == (\sum int i; 0 <= i && i < DEFAULT_TABLERO_SIZE; (\num_of int j; 0 <= j && j < DEFAULT_TABLERO_SIZE; tablero[i][j] != EMPTY_SLOT));
+      @*/
 	public static /*@ pure @*/ void inicializarTablero() {
         int fila = 0, columna;
 
+        /*@ maintaining 0 <= fila <= DEFAULT_TABLERO_SIZE;
+          @ decreasing DEFAULT_TABLERO_SIZE - fila;
+          @*/
         while (fila < DEFAULT_TABLERO_SIZE) {
             columna = 0;
+
+            /*@ maintaining 0 <= columna <= DEFAULT_TABLERO_SIZE;
+              @ maintaining (\forall int i; 0 <= i && i < fila; (\forall int j; 0 <= j && j < columna; tablero[i][j] == EMPTY_SLOT));
+              @ decreasing DEFAULT_TABLERO_SIZE - columna;
+              @*/
             while (columna < DEFAULT_TABLERO_SIZE) {
                 tablero[fila][columna] = EMPTY_SLOT;
                 columna++;
