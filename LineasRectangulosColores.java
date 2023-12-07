@@ -149,16 +149,34 @@ public class LineasRectangulosColores {
         contador_de_objetos[objeto] += cantidad;
     }
 
-    public static /*@ pure @*/ void agregarProximosObjetos() {
-        int FILA = 0;
-        int COLUMNA = 1;
-        int i = 0;
-        int[] casilla = new int[2];
+    /**
+     * en la variable casilla se almacenaran las casillas vacias seleccionadas
+     * de forma aleatorea.
+     *
+     * Lo declaro aca para poder usarlo en la postcondicion.
+     */
+    public static int[][] casillas = new int[DEFAULT_PROXIMOS_OBJETOS_CANTIDAD][2];
 
+    /**
+     * Agrega los proximos objetos en casillas vacias en el tablero
+     * seleccionadas de manera aleatorea. 
+     */
+    /*@ requires tablero != null;
+      @ requires proximosObjetos != null;
+      @ requires (\forall int i; 0 <= i && i < DEFAULT_PROXIMOS_OBJETOS_CANTIDAD; 0 <= proximosObjetos[i] && proximosObjetos[i] < CANTIDAD_DE_OBJS_EXISTENTES);
+      @ ensures (\forall int k; 0 <= k && k < DEFAULT_PROXIMOS_OBJETOS_CANTIDAD; tablero[casillas[k][FILA]][casillas[k][COLUMNA]] == proximosObjetos[k]);
+      @*/
+    public static /*@ pure @*/ void agregarProximosObjetos() {
+        int i = 0;
+
+        /*@ maintaining 0 <= i <= DEFAULT_PROXIMOS_OBJETOS_CANTIDAD;
+          @ maintaining (\forall int k; 0 <= k && k < i; tablero[casillas[k][FILA]][casillas[k][COLUMNA]] == proximosObjetos[k]);
+          @ decreasing DEFAULT_PROXIMOS_OBJETOS_CANTIDAD - i;
+          @*/
         while (i < DEFAULT_PROXIMOS_OBJETOS_CANTIDAD) {
-            obtenerCasillaRandomVacia(casilla);
-            // Colocar el objeto en la casilla vacia al azar
-            tablero[casilla[FILA]][casilla[COLUMNA]] = proximosObjetos[i];
+            obtenerCasillaRandomVacia(casillas[i]);
+            // Colocar el objeto en la casilla vacia al azar en la posicion i de las casillas 
+            tablero[casillas[i][FILA]][casillas[i][COLUMNA]] = proximosObjetos[i];
             // aumentar la cantidad del objeto que agrega en el tablero
             aumentarCantidadDeObjeto(proximosObjetos[i], 1);
 
@@ -218,14 +236,8 @@ public class LineasRectangulosColores {
         for (int i =0; i < contador_de_objetos.length; i++) {
             obtenerProximosObjetos();
             agregarProximosObjetos();
-
-            for (int j =0; j < contador_de_objetos.length; j++) {
-                System.out.print(j + ": " + contador_de_objetos[j] + " | ");
-            }
-            System.out.print("\n");
-            Utils.imprimirTableroPorConsola(tablero, DEFAULT_TABLERO_SIZE);
         }
-            System.out.print("\n");
-            Utils.imprimirTableroPorConsola(tablero, DEFAULT_TABLERO_SIZE);
+
+        Utils.imprimirTableroPorConsola(tablero, DEFAULT_TABLERO_SIZE);
     }
 }
