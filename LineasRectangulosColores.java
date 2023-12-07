@@ -21,6 +21,12 @@ public class LineasRectangulosColores {
 
     public static final int DEFAULT_PROXIMOS_OBJETOS_CANTIDAD = 3; // cantidad de objetos a agregar
 
+    /**
+     * indices para la estructura casilla
+     */
+    public static final int FILA = 0; 
+    public static final int COLUMNA = 1;
+
 
     /*****************************************************************/
     /*************************** UTILITIES ***************************/
@@ -101,11 +107,26 @@ public class LineasRectangulosColores {
         return tablero[fila][columna] == EMPTY_SLOT;
     }
 
-    // TODO: improve algoritm performance
+    /**
+     * Asigna la fila y la columna de una casilla vacia de manera aleatoria
+     * 
+     * TODO: improve algorithm performance by adding a global counter with the
+     * TODO: empty slots amount and getting all this slots in an array of this
+     * TODO: counter size and returning a random index of this array
+     */
+    /*@ requires casilla != null;
+      @ ensures 0 <= casilla[FILA] < DEFAULT_TABLERO_SIZE;
+      @ ensures 0 <= casilla[COLUMNA] < DEFAULT_TABLERO_SIZE;
+      @ ensures esCasillaVacia(casilla[FILA], casilla[COLUMNA]);
+      @*/
     public static /*@ pure @*/ void obtenerCasillaRandomVacia(int[] casilla) {
-        int FILA = 0;
-        int COLUMNA = 1;
-
+        /**
+         * Tecnica de elmininacion de un predicado de una conjunción
+         * Cota: no hay una cota exacta, al ser numeros random depende de la aleatoriedad para conseguir la casilla vacia.
+         */
+        /*@ maintaining 0 <= casilla[FILA] < DEFAULT_TABLERO_SIZE;
+          @ maintaining 0 <= casilla[COLUMNA] < DEFAULT_TABLERO_SIZE;
+          @*/
         do {
             casilla[FILA] = getRandomInt(DEFAULT_TABLERO_SIZE - 1);  // -1 porque retorna [0, n]
             casilla[COLUMNA] = getRandomInt(DEFAULT_TABLERO_SIZE - 1);  // -1 porque retorna [0, n]
