@@ -113,6 +113,9 @@ public class LineasRectangulosColores {
      * TODO: improve algorithm performance by adding a global counter with the
      * TODO: empty slots amount and getting all this slots in an array of this
      * TODO: counter size and returning a random index of this array
+     * * Este refactor del counter se puede hacer sumando los objetos presentes
+     * * en el tablero es decir sumar el array los valores del array
+     * * contador_de_objetos y restandoselo al total de slots DEFAULT_TABLERO_SIZE x DEFAULT_TABLERO_SIZE
      */
     /*@ requires casilla != null;
       @ ensures 0 <= casilla[FILA] < DEFAULT_TABLERO_SIZE;
@@ -133,6 +136,15 @@ public class LineasRectangulosColores {
         } while (!esCasillaVacia(casilla[FILA], casilla[COLUMNA]));
     }
 
+    /**
+     * Aumenta la cantidad de un objeto en el tablero
+     * @param objeto - valor representativo del objeto en las estructuras de array
+     * @param cantidad - cantidad a aumentar en el array contador_de_objetos
+     */
+    /*@ requires 0 <= objeto <= CANTIDAD_DE_OBJS_EXISTENTES;
+      @ requires 0 < cantidad <= DEFAULT_TABLERO_SIZE*DEFAULT_TABLERO_SIZE;
+      @ ensures contador_de_objetos[objeto] == (\sum int i; 0 <= i && i < DEFAULT_TABLERO_SIZE; (\num_of int j; 0 <= j && j < DEFAULT_TABLERO_SIZE; tablero[i][j] == objeto));
+      @*/
     public static /*@ pure @*/ void aumentarCantidadDeObjeto(int objeto, int cantidad) {
         contador_de_objetos[objeto] += cantidad;
     }
@@ -203,6 +215,17 @@ public class LineasRectangulosColores {
         // );
         inicializarTablero();
 
-        Utils.imprimirTableroPorConsola(tablero, DEFAULT_TABLERO_SIZE);
+        for (int i =0; i < contador_de_objetos.length; i++) {
+            obtenerProximosObjetos();
+            agregarProximosObjetos();
+
+            for (int j =0; j < contador_de_objetos.length; j++) {
+                System.out.print(j + ": " + contador_de_objetos[j] + " | ");
+            }
+            System.out.print("\n");
+            Utils.imprimirTableroPorConsola(tablero, DEFAULT_TABLERO_SIZE);
+        }
+            System.out.print("\n");
+            Utils.imprimirTableroPorConsola(tablero, DEFAULT_TABLERO_SIZE);
     }
 }
