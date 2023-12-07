@@ -48,6 +48,15 @@ public class LineasRectangulosColores {
     public static int[] contador_de_objetos = {0, 0, 0, 0, 0, 0, 0};
     public static int[] proximosObjetos = new int[3];
 
+    /**
+     * Retorna el objeto en menor cantidad el el objeto. En este caso el indice
+     * corresponde al valor que representa el objeto
+     * @return int
+     */
+    /*@ requires contador_de_objetos != null;
+      @ requires (\forall int i; 0 <= i && i < contador_de_objetos.length; 0 <= contador_de_objetos[i] <= Integer.MAX_VALUE);
+      @ ensures (\forall int i; 0 <= i && i < contador_de_objetos.length; contador_de_objetos[\result] <= contador_de_objetos[i]);
+      @*/
     public static /*@ pure @*/ int obtenerObjEnMenorCantidad() {
         int i = 1, menor = 0;
 
