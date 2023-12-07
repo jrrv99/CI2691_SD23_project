@@ -51,6 +51,7 @@ public class LineasRectangulosColores {
     /**
      * Retorna el objeto en menor cantidad el el objeto. En este caso el indice
      * corresponde al valor que representa el objeto
+     *
      * @return int
      */
     /*@ requires contador_de_objetos != null;
@@ -83,6 +84,19 @@ public class LineasRectangulosColores {
         proximosObjetos[2] = obtenerObjEnMenorCantidad();
     }
 
+    /**
+     * Retorna simplemente si la casilla está marcada como vacia es decir si
+     * el valor es EMPTY_SLOT (-1)
+     *
+     * @param fila valor de la fila de la casilla
+     * @param columna valor de la columna de la casilla
+     * @return (boolean) retorna si la casilla esta vacia
+     */
+    /*@ requires tablero != null;
+      @ requires 0 <= fila < DEFAULT_TABLERO_SIZE;
+      @ requires 0 <= columna < DEFAULT_TABLERO_SIZE;
+      @ ensures \result <==> tablero[fila][columna] == EMPTY_SLOT;
+      @*/
     public static /*@ pure @*/ boolean esCasillaVacia(int fila, int columna) {
         return tablero[fila][columna] == EMPTY_SLOT;
     }
