@@ -69,7 +69,14 @@ public class LineasRectangulosColores {
         return menor;
     }
 
-    // Procedimiento 2
+    /**
+     * Procedimiento 2: Obtiene los proximos elementos a agregar y los guarda
+     * en proximosObjetos. Los dos primeros son random, y el ultimo es el que
+     * se encuentra en menor cantidad en el tablero.
+     */
+    /*@ requires proximosObjetos != null;
+      @ ensures \forall int i; 0 <= i && i < proximosObjetos.length; 0 <= proximosObjetos[i] && proximosObjetos[i] < CANTIDAD_DE_OBJS_EXISTENTES;
+      @*/
     public static /*@ pure @*/ void obtenerProximosObjetos() {
         proximosObjetos[0] = getRandomInt(CANTIDAD_DE_OBJS_EXISTENTES - 1);  // -1 porque retorna [0, n]
         proximosObjetos[1] = getRandomInt(CANTIDAD_DE_OBJS_EXISTENTES - 1);  // -1 porque retorna [0, n]
