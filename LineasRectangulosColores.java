@@ -15,7 +15,7 @@ public class LineasRectangulosColores {
     public static final int PANEL_BARRA_TITULO_ALTURA = 38; // alto de la barra de titulo 
     public static final int PANEL_DEFAULT_XMAX = 512;
     public static final int PANEL_DEFAULT_YMAX = 512;
-    public static final String PANEL_DEFAULT_TITLE = "Lineas Rectangulos Colores";
+    public static final String PANEL_DEFAULT_TITLE = "Lineas Rectangulos Colores (V 1.0.Beta)";
     
     public static int PANEL_YMAX = PANEL_DEFAULT_YMAX;
     public static int PANEL_XMAX = PANEL_DEFAULT_XMAX;
@@ -423,9 +423,13 @@ public class LineasRectangulosColores {
       @ ensures \forall int i; 0 <= i && i < proximosObjetos.length; 0 <= proximosObjetos[i] && proximosObjetos[i] < CANTIDAD_DE_OBJS_EXISTENTES;
       @*/
     public static /*@ pure @*/ void obtenerProximosObjetos() {
-        proximosObjetos[0] = getRandomInt(CANTIDAD_DE_OBJS_EXISTENTES - 1);  // -1 porque retorna [0, n]
-        proximosObjetos[1] = getRandomInt(CANTIDAD_DE_OBJS_EXISTENTES - 1);  // -1 porque retorna [0, n]
-        proximosObjetos[2] = obtenerObjEnMenorCantidad();
+        int i = 0, n = proximosObjetos.length;
+        while(i < n - 1) {
+            proximosObjetos[0] = getRandomInt(CANTIDAD_DE_OBJS_EXISTENTES - 1);  // -1 porque retorna [0, n]
+
+            i++;
+        }
+        proximosObjetos[n -1] = obtenerObjEnMenorCantidad();
     }
 
     /**
@@ -586,9 +590,11 @@ public class LineasRectangulosColores {
      * Procedimiento 3: 
      */
 	public static /*@ pure @*/ void mostrarJuego(MaquinaDeTrazados panel) {
+        panel.limpiar();
         dibujarTablero(panel);
         dibujarProximosObjetos(panel);
         dibujarPuntaje(panel);
+        panel.repintar();
     }
 
     /*@ requires tablero != null;
@@ -633,68 +639,52 @@ public class LineasRectangulosColores {
      */
 	public static /*@ pure @*/ void obtenerJugadaValida() {
         boolean jugadaInvalida = false, casillaInvalida = false;
-        System.out.println("Introduzca los datos del objeto que desea mover");
 
         do {
-            System.out.print("fila: ");
-            jugada[JUGADA_OBJ_A_MOVER_FILA] = consola.nextInt();
-            System.out.print("Columna: ");
-            jugada[JUGADA_OBJ_A_MOVER_COL] = consola.nextInt();
+            // Utils.cleanConsole();
+            if (casillaInvalida)
+                System.out.println("La casilla está vacia. Debe seleccionar un objeto!\n");
 
-            System.out.println(jugada[JUGADA_OBJ_A_MOVER_FILA] + "," + jugada[JUGADA_OBJ_A_MOVER_COL]);
-            System.out.println(tablero[
-                jugada[JUGADA_OBJ_A_MOVER_FILA]
-            ][
-                jugada[JUGADA_OBJ_A_MOVER_COL]
-            ]);
+            if(jugadaInvalida) {
+                System.out.println("El objeto no puede ser movido");
+                System.out.println("Debe tener al menos una casilla vacia a su alrededor.");
+                System.out.println("Por favor introduzca un objeto con al menos una casilla libre a su alrrededor.\n");
+            }
+              
+            System.out.println("Introduzca la fila y la columna del objeto que desea mover separados por un espacio.\n");
+            System.out.print("FILA COLUMNA: ");
+            jugada[JUGADA_OBJ_A_MOVER_FILA] = consola.nextInt();
+            jugada[JUGADA_OBJ_A_MOVER_COL] = consola.nextInt();
 
             casillaInvalida = esCasillaVacia(
                 jugada[JUGADA_OBJ_A_MOVER_FILA],
                 jugada[JUGADA_OBJ_A_MOVER_COL]
             );
 
-            if(casillaInvalida) {
-                System.out.println("La casilla está vacia");
-                System.out.println("Debe seleccionar un objeto");
-                continue;
-            }
-
             jugadaInvalida = !sePuedeMover(
                 jugada[JUGADA_OBJ_A_MOVER_FILA],
                 jugada[JUGADA_OBJ_A_MOVER_COL]
             );
-
-            if(jugadaInvalida) {
-                System.out.println("El objeto no puede ser movido");
-                System.out.println("Debe que tener al menos una casilla vacia a su alrededor.");
-                System.out.println("Por favor introduzca un objeto con al menos una casilla libre a su alrrededor.");
-            }
         } while (jugadaInvalida || casillaInvalida);
 
-        System.out.println("Introduzca los datos de la casilla a la que desea mover el objeto");
+        jugadaInvalida = false;
 
         do {
-            System.out.print("fila: ");
-            jugada[JUGADA_LUGAR_A_MOVER_FILA] = consola.nextInt();
-            System.out.print("Columna: ");
-            jugada[JUGADA_LUGAR_A_MOVER_COL] = consola.nextInt();
+            // Utils.cleanConsole();
+            if(jugadaInvalida)
+                System.out.println("La casilla debe estar vacia");
+                System.out.println("Por favor introduzca una casilla libre.\n");
 
-            System.out.println(jugada[JUGADA_LUGAR_A_MOVER_FILA] + "," + jugada[JUGADA_LUGAR_A_MOVER_COL]);
-            System.out.println(tablero[
-                jugada[JUGADA_LUGAR_A_MOVER_FILA]
-            ][
-                jugada[JUGADA_LUGAR_A_MOVER_COL]
-            ]);
+            System.out.println("Introduzca la fila y la columna de la casilla a la que desea mover el objeto separados por espacio\n");
+
+            System.out.print("FILA COLUMNA: ");
+            jugada[JUGADA_LUGAR_A_MOVER_FILA] = consola.nextInt();
+            jugada[JUGADA_LUGAR_A_MOVER_COL] = consola.nextInt();
 
             jugadaInvalida = !esCasillaVacia(
                 jugada[JUGADA_LUGAR_A_MOVER_FILA],
                 jugada[JUGADA_LUGAR_A_MOVER_COL]
             );
-
-            if(jugadaInvalida) {
-                System.out.println("La casilla debe estar vacia");
-                System.out.println("Por favor introduzca una casilla libre.");
-            }
         } while (jugadaInvalida);
     }
 
@@ -724,7 +714,8 @@ public class LineasRectangulosColores {
     }
 
     /**
-     * Función 2
+     * Función 2: Determina si es fin de juego restando la suma de los objetos
+     * existentes en el tablero .
      */
 	public static /*@ pure @*/ boolean esFinDeJuego() {
         int i = 0, suma = 0;
@@ -735,9 +726,18 @@ public class LineasRectangulosColores {
         return suma == TABLERO_SLOTS*TABLERO_SLOTS;
     }
 
-    public static void main(String[] args) {
-        PANEL_XMAX = 512;
-        PANEL_YMAX = 512;
+    public static void procesarFinalDeJuego(MaquinaDeTrazados panel) {
+        panel.terminar();
+
+        System.out.println("\n\tEL JUEGO HA FINALIZADO\n");
+        System.out.println("\tGracias por jugar!");
+        System.out.println("\tPronto lanzaremos una release con nuevas features y fixes");
+        System.out.println("\tEstad atentos! :)");
+
+        System.out.println(PANEL_DEFAULT_TITLE);
+    }
+
+    public static void iniciarJuego() {
         MaquinaDeTrazados panel = new MaquinaDeTrazados(
             PANEL_XMAX,
             normalizedPanelYMAX(),
@@ -745,12 +745,15 @@ public class LineasRectangulosColores {
             Colores.LIGHT_GRAY
         );
 
+        System.out.println("\n\t\tBIENVENIDO EL JUEGO HA INICIADO\n");
+        
+        // Utils.cleanConsole();
         inicializarTablero();
         obtenerProximosObjetos();
         while (!esFinDeJuego()) {
             // Mostrar-Estado-del-Juego;
             mostrarJuego(panel);
-            Utils.imprimirTableroPorConsola(tablero, 9);
+            // Utils.imprimirTableroPorConsola(tablero, 9);
 
             // Obtener-Jugada-Valida;
             obtenerJugadaValida();
@@ -759,9 +762,8 @@ public class LineasRectangulosColores {
             moverObjetoSeleccionado();
 
             // Mostrar-Estado-del-Juego; (ACTUALIZAR)
-            panel.limpiar();
             mostrarJuego(panel);
-            Utils.imprimirTableroPorConsola(tablero, 9);
+            // Utils.imprimirTableroPorConsola(tablero, 9);
 
             // Agregar-Proximos-Objetos;
             agregarProximosObjetos();
@@ -770,8 +772,41 @@ public class LineasRectangulosColores {
             obtenerProximosObjetos();
 
             // Mostrar-Estado-del-Juego; (ACTUALIZAR)
-            panel.limpiar();
             mostrarJuego(panel);
         }
+
+        // Procesar-Final-Juego;
+        procesarFinalDeJuego(panel);
+    }
+
+    public static void main(String[] args) {
+        iniciarJuego();
+        /**
+         * Next release (V 1.1.Alfa):
+         * 
+         * * Features:
+         *      Eliminar patrones y Acumular puntos
+         *      Leer-Configuracion-Desde-Los-Args;
+         *      Iprimir-menu-Del-Juego;
+         *           1.- Iniciar Juego
+         *           2.- Leer Reglas del Juego
+         *           3.- Configuración
+         *               - Aumentar tamaño del tablero
+         *               - Configurar Tamaño del panel
+         *               - Normalizar Altura del panel
+         *               - Cantidad de proximos objetos a agregar
+         *               - Aumentar dificultad
+         *                   - Mostrar el panel solo por unos segundos
+         *                   - Aumentar el numero de alineaciones
+         *                   - Aumentar Cantidad de proximos Objetos a agregar
+         * 
+         * ? Note: hasta ahora el responsive solo se puede cambiar
+         * ? modificando las constantes PANEL_YMAX y PANEL_XMAX. Se ve bastante
+         * ? bien desde 250x250 en adelante (Por defecto es 512x512)
+         * 
+         * ! Fixes:
+         *      Agregar el jml restante
+         *      Optimizar algoritmos de casilla random
+         */
     }
 }
