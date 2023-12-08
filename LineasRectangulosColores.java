@@ -1,5 +1,5 @@
 import java.util.Random;
-// import java.awt.Font;
+import java.awt.Font;
 // import java.util.Scanner;
 
 public class LineasRectangulosColores {
@@ -7,8 +7,31 @@ public class LineasRectangulosColores {
     /********************** GLOBALES **********************/
     /******************************************************/
 
-    public static final int DEFAULT_TABLERO_SIZE = 9;
-	public static int[][] tablero = new int[DEFAULT_TABLERO_SIZE][DEFAULT_TABLERO_SIZE];
+    /**
+     * Constantes y variables para la configuracion del Panel
+     */
+    public static final int PANEL_BARRA_TITULO_ALTURA = 38; // alto de la barra de titulo 
+    public static final int PANEL_DEFAULT_XMAX = 512;
+    public static final int PANEL_DEFAULT_YMAX = 512;
+    public static final String PANEL_DEFAULT_TITLE = "Lineas Rectangulos Colores";
+    
+    public static int PANEL_YMAX = PANEL_DEFAULT_YMAX;
+    public static int PANEL_XMAX = PANEL_DEFAULT_XMAX;
+
+    /**
+     * Alto y ancho aproximados de la fuente en pixeles
+     */
+    public static int ANCHO_FUENTE = 4; // font 8 -> 2, 12 -> 4, 24 -> 8
+    public static int ALTO_FUENTE = 5; // font 8 -> 2, 12 -> 5, 24 -> 10
+
+    /**
+     * Constantes y variables para la configuracion del tablero
+     */
+    public static final int DEFAULT_TABLERO_SLOTS = 9;
+    public static final int TABLERO_SLOTS = DEFAULT_TABLERO_SLOTS;
+	public static int[][] tablero = new int[TABLERO_SLOTS][TABLERO_SLOTS];
+    // Guardaram tamaño de tablero y posicion de esquina superior izquierda respectivamente
+    public static int TABLERO_SIZE, TABLERO_X_POS, TABLERO_Y_POS;
 
     /**
      * Enum for objects representation in array indexes
@@ -16,6 +39,7 @@ public class LineasRectangulosColores {
      * TODO: Use Enum DSE for good practices
      * TODO: CANTIDAD_DE_OBJS_EXISTENTES = Objetos.values().length
      */
+    public static final int CANTIDAD_DE_OBJS_EXISTENTES = 7; // cantidad de objetos cuadrado mas 6 circulos
     public static final int EMPTY_SLOT = -1; // Cuadro vacio en el tablero
     public static final int CUADRADO = 0;
     public static final int BOLA_ROJA = 1;
@@ -24,7 +48,19 @@ public class LineasRectangulosColores {
     public static final int BOLA_NARANJA = 4;
     public static final int BOLA_MAGENTA = 5;
     public static final int BOLA_AMARILLA = 6;
-    public static final int CANTIDAD_DE_OBJS_EXISTENTES = 7; // cantidad de objetos cuadrado mas 6 circulos
+
+    /**
+     * Object colors in order of the objects indexes representation
+     */
+    public static final Colores[] colors = new Colores[]{
+        Colores.WHITE,
+        Colores.RED,
+        Colores.GREEN,
+        Colores.BLUE,
+        Colores.YELLOW,
+        Colores.ORANGE,
+        Colores.MAGENTA,
+    };
 
     /**
      * contador_de_objetos: Representa la cantidad de cada objeto en el
@@ -53,15 +89,20 @@ public class LineasRectangulosColores {
     public static int[][] casillas = new int[DEFAULT_PROXIMOS_OBJETOS_CANTIDAD][2];
 
     /**
-     * Constantes y variables para la configuracion del Panel
+     * Puntaje:
+     * La varaible puntaje almacenara la cantidad de puntos acumulados al ir
+     * alineando objetos.
+     * Y las siguientes variables representan los puntos por cantidad de 
+     * objetos alineados respectivamente
      */
-    public static final int PANEL_BARRA_TITULO_ALTURA = 38; // alto de la barra de titulo 
-    public static final int PANEL_DEFAULT_XMAX = 512;
-    public static final int PANEL_DEFAULT_YMAX = 512;
-    public static final String PANEL_DEFAULT_TITLE = "Lineas Rectangulos Colores";
-    
-    public static int PANEL_YMAX = PANEL_DEFAULT_YMAX;
-    public static int PANEL_XMAX = PANEL_DEFAULT_XMAX;
+    public static final int PUNTOS_POR_4 = 5;
+    public static final int PUNTOS_POR_5 = 10;
+    public static final int PUNTOS_POR_6 = 12;
+    public static final int PUNTOS_POR_7 = 18;
+    public static final int PUNTOS_POR_8_OR_MORE = 40;
+    public static final int PUNTOS_POR_LESS_THAN_4 = 0;
+	int puntaje = 0; // puntos acumulados por alineacion de objetos
+
 
     /*****************************************************************/
     /*************************** UTILITIES ***************************/
@@ -87,6 +128,249 @@ public class LineasRectangulosColores {
       @*/
     public static /*@ pure @*/ int normalizedPanelYMAX() {
         return PANEL_YMAX + PANEL_BARRA_TITULO_ALTURA;
+    }
+
+    /**
+     * Retorna el numero divisible por M mas cercano a N
+     * @param N - un entero mayor o igual a M
+     * @param M - un entero mayor a cero
+     */ 
+    /*@ requires 0 < N <= Integer.MAX_VALUE;
+      @ requires 0 < M <=  Integer.MAX_VALUE;
+      @ requires M <= N;
+      @*/
+    public static /*@ pure @*/ int NormalizeToExactlyDivisible(int N, int M) {
+        int divisible = (int)Math.round(N / M) * M;
+        return divisible;
+    }
+
+    /**
+     * Dibuja una linea horizontal de largo l desde el punto (x,y) dado
+     *
+     * @param plt - el panel a dibujar
+     * @param x - la coordenada x del punto de origen
+     * @param y - la coordenada y del punto de origen
+     * @param l - el largo deseado de la linea
+     * @param color - el color de la linea
+     */
+    /*@ requires plt != null;
+      @ requires 0 <= x <= plt.XMAX < Integer.MAX_VALUE;
+	  @ requires 0 <= y <= plt.YMAX < Integer.MAX_VALUE;
+	  @ requires l < Integer.MAX_VALUE;
+      @ requires color != null;
+      @*/
+    public static /*@ pure @*/ void dibujarLineaHorizontal(MaquinaDeTrazados plt, int x, int y, int l, Colores color) {
+        plt.dibujarLinea(
+            x, y,
+            x + l, y,
+            color
+        );
+        plt.mostrar();
+    }
+
+    /**
+     * Dibuja una linea vertical de largo l desde el punto (x,y) dado
+     *
+     * @param plt - el panel a dibujar
+     * @param x - la coordenada x del punto de origen
+     * @param y - la coordenada y del punto de origen
+     * @param l - el largo deseado de la linea
+     * @param color - el color de la linea
+     */
+    /*@ requires plt != null;
+      @ requires 0 <= x <= plt.XMAX < Integer.MAX_VALUE;
+	  @ requires 0 <= y <= plt.YMAX < Integer.MAX_VALUE;
+	  @ requires l < Integer.MAX_VALUE;
+      @ requires color != null;
+      @*/
+    public static /*@ pure @*/ void dibujarLineaVertical(MaquinaDeTrazados plt, int x, int y, int l, Colores color) {
+        plt.dibujarLinea(
+            x, y,
+            x, y + l,
+            color
+        );
+        plt.mostrar();
+    }
+
+    /**
+     * Dibuja los indices del tablero
+     */
+    /*@ requires plt != null;
+      @ requires 0 <= x <= PANEL_XMAX;
+      @ requires 0 <= y <= PANEL_YMAX;
+      @ requires 0 < size < Integer.MAX_VALUE;
+      @ requires 0 < slots_number < Integer.MAX_VALUE;
+      @*/
+    public static /*@ pure @*/ void dibujarIndices(MaquinaDeTrazados plt, int x, int y, int size, int slots_number) {
+        int i = 0;
+        int LINE_WIDTH = 1;
+        int SLOT_WIDTH = size / slots_number;
+
+        if (PANEL_XMAX <= 350)
+            plt.configurarFuente("SansSerif", Font.PLAIN, 8);
+
+        /*@ maintaining 0 <= i <= slots_number;
+          @ maintaining true;
+          @ decreasing slots_number - i;
+          @*/
+		while(i < slots_number) {
+            // Numero horizontal del slot
+            plt.dibujarString(
+                Integer.toString(i),
+                x + SLOT_WIDTH * i + (SLOT_WIDTH / 2) - ANCHO_FUENTE,
+                y - (SLOT_WIDTH / 2) + ALTO_FUENTE
+            );
+            
+            // Pintar numero vertical
+            plt.dibujarString(
+                Integer.toString(i),
+                x - (SLOT_WIDTH / 2),
+                y + SLOT_WIDTH * i + (SLOT_WIDTH / 2) + ALTO_FUENTE
+            );
+            i++;
+		}
+	}
+
+    /**
+     * Dibuja la cuadrilla del tablero
+     */
+    /*@ requires plt != null;
+      @ requires 0 <= x <= PANEL_XMAX;
+      @ requires 0 <= y <= PANEL_YMAX;
+      @ requires 0 < size < Integer.MAX_VALUE;
+      @ requires 0 < slots_number < Integer.MAX_VALUE;
+      @*/
+	public static /*@ pure @*/ void dibujarCuadrilla(MaquinaDeTrazados plt, int x, int y, int size, int slots_number) {
+        int i = 0;
+        int LINE_WIDTH = 1;
+        int SLOT_WIDTH = size / slots_number;
+
+		while(i < slots_number + 1) {
+            // Linea Horizontal del grid
+			dibujarLineaHorizontal(plt, x, y + SLOT_WIDTH * i, size, Colores.BLACK);
+            // Linea Vertical del grid
+			dibujarLineaVertical(plt, x + SLOT_WIDTH * i, y, size, Colores.BLACK);
+            i++;
+		}
+	}
+
+    /**
+     * Pinta el tipo de elemento con centro en (x,y)
+     * 
+     * @param plt - panel a pintar
+     * @param x - coordenada x del centro del elemento
+     * @param columna - coordenada y del centro del elemento
+     * @param elemento - indice del elemento en la representacion de objetos
+     */
+    /*@ requires plt != null;
+      @ requires 0 <= x <= PANEL_DEFAULT_XMAX;
+      @ requires 0 <= y <= PANEL_DEFAULT_YMAX;
+      @ requires 0 <= elemento <= 6;
+      @*/
+    public static /*@ pure @*/ void dibujarElemento(MaquinaDeTrazados plt, int x, int y, int elemento) {
+        int SLOT_WIDTH = TABLERO_SIZE / TABLERO_SLOTS;
+
+        if (elemento == CUADRADO) {
+            DibujosVarios.dibujarCuadradoLleno(
+                plt, x, y,
+                SLOT_WIDTH,
+                colors[CUADRADO]
+            );
+            return;
+        }
+
+        DibujosVarios.dibujarCirculoLleno(
+            plt, x, y,
+            SLOT_WIDTH / 2,
+            colors[elemento]
+        );
+    }
+
+    /**
+     * Asigna las coordenadas del objeto en el centro de la casilla 
+     * correspondiente en el array coords.
+     * @param fila - fila del elemento en el tablero
+     * @param columna - columna del elemento en el tablero
+     * @param coords - el array de tamaño 2 donde se guardaran las coordenadas
+     * del objeto en el tablero.
+     */
+    /*@ requires coords != null;
+      @ requires 0 <= fila <= PANEL_DEFAULT_XMAX;
+      @ requires 0 <= columna <= PANEL_DEFAULT_YMAX;
+      @*/
+    public static /*@ pure @*/ void obtenerCoordenadasDeElementoEnTablero(int fila, int columna, int[] coords) {
+        int SLOT_WIDTH = TABLERO_SIZE / TABLERO_SLOTS;
+
+        // desplaza en x desde TABLERO_X_POS el tamaño del slot 1.5 filas, es decir en la mitad de la fila correspondiente
+        int SLOT_CENTER_FILA = TABLERO_X_POS + fila * SLOT_WIDTH + (int)Math.round(SLOT_WIDTH / 2);
+        // desplaza en y desde TABLERO_Y_POS el tamaño del slot 1.5 columnas, es decir en la mitad de la columna correspondiente
+        int SLOT_CENTER_COLUMNA = TABLERO_Y_POS + columna * SLOT_WIDTH + (int)Math.round(SLOT_WIDTH / 2);
+
+        coords[0] = SLOT_CENTER_FILA;
+        coords[1] = SLOT_CENTER_COLUMNA;
+    }
+
+    /**
+     * Dibuja los elementos en el tablero
+     */
+    /*@ requires panel != null;
+      @ requires tablero != null;
+      @*/
+    public static /*@ pure @*/ void dibujarElementosEnElTablero(MaquinaDeTrazados panel) {
+        int fila = 0, X = 0, Y = 1, columna;
+        int [] coords = new int[2];
+
+        /*@ maintaining 0 <= fila <= tablero.length; 
+          @ maintaining true;
+          @ decreasing tablero.length - fila;
+          @*/
+        while(fila < tablero.length) {
+            columna = 0;
+
+            /*@ maintaining 0 <= columna <= tablero.length;
+              @ maintaining true;
+              @ decreasing tablero.length - columna;
+              @*/
+            while(columna < tablero[fila].length) {
+                obtenerCoordenadasDeElementoEnTablero(fila, columna, coords);
+                if (tablero[fila][columna] != EMPTY_SLOT)
+                    dibujarElemento(panel, coords[X], coords[Y], tablero[fila][columna]);
+                
+                columna++;
+            }
+            fila++;
+        }
+    }
+
+    /**
+     * Dibuja el tablero de juego en el panel
+     */
+    /*@ requires panel != null;
+      @ requires tablero != null;
+      @*/
+    public static /*@ pure @*/ void dibujarTablero(MaquinaDeTrazados panel) {
+        int SLOT_SIZE;
+        int MARGEN_Y = (int)Math.round(PANEL_YMAX * 0.05); // 5% de margen vertical
+
+        TABLERO_SIZE = NormalizeToExactlyDivisible(
+            (int)Math.round(Math.min(PANEL_XMAX, PANEL_YMAX) * 0.7),
+            DEFAULT_TABLERO_SLOTS
+        );
+
+        SLOT_SIZE = TABLERO_SIZE / DEFAULT_TABLERO_SLOTS;
+
+        /**
+         * TABLERO_X_POS: Al tamaño del tablero se le agrega el tamaño de un
+         * Slot (El tamaño donde ira el numero del indice) y se centra.
+         * TABLERO_Y_POS: se coloca el tablero a MARGEN_Y de la parte inferior
+         * del panel.
+         */
+        TABLERO_X_POS = PANEL_XMAX / 2 - (TABLERO_SIZE - SLOT_SIZE / 2) / 2;
+        TABLERO_Y_POS = PANEL_YMAX - TABLERO_SIZE - MARGEN_Y;
+
+        dibujarCuadrilla(panel, TABLERO_X_POS, TABLERO_Y_POS, TABLERO_SIZE, DEFAULT_TABLERO_SLOTS);
+        dibujarIndices(panel, TABLERO_X_POS, TABLERO_Y_POS, TABLERO_SIZE, DEFAULT_TABLERO_SLOTS);
+        dibujarElementosEnElTablero(panel);
     }
 
     /********************************************************************/
@@ -138,8 +422,8 @@ public class LineasRectangulosColores {
      * @return (boolean) retorna si la casilla esta vacia
      */
     /*@ requires tablero != null;
-      @ requires 0 <= fila < DEFAULT_TABLERO_SIZE;
-      @ requires 0 <= columna < DEFAULT_TABLERO_SIZE;
+      @ requires 0 <= fila < DEFAULT_TABLERO_SLOTS;
+      @ requires 0 <= columna < DEFAULT_TABLERO_SLOTS;
       @ ensures \result <==> tablero[fila][columna] == EMPTY_SLOT;
       @*/
     public static /*@ pure @*/ boolean esCasillaVacia(int fila, int columna) {
@@ -154,11 +438,11 @@ public class LineasRectangulosColores {
      * TODO: counter size and returning a random index of this array
      * * Este refactor del counter se puede hacer sumando los objetos presentes
      * * en el tablero es decir sumar el array los valores del array
-     * * contador_de_objetos y restandoselo al total de slots DEFAULT_TABLERO_SIZE x DEFAULT_TABLERO_SIZE
+     * * contador_de_objetos y restandoselo al total de slots DEFAULT_TABLERO_SLOTS x DEFAULT_TABLERO_SLOTS
      */
     /*@ requires casilla != null;
-      @ ensures 0 <= casilla[FILA] < DEFAULT_TABLERO_SIZE;
-      @ ensures 0 <= casilla[COLUMNA] < DEFAULT_TABLERO_SIZE;
+      @ ensures 0 <= casilla[FILA] < DEFAULT_TABLERO_SLOTS;
+      @ ensures 0 <= casilla[COLUMNA] < DEFAULT_TABLERO_SLOTS;
       @ ensures esCasillaVacia(casilla[FILA], casilla[COLUMNA]);
       @*/
     public static /*@ pure @*/ void obtenerCasillaRandomVacia(int[] casilla) {
@@ -166,12 +450,12 @@ public class LineasRectangulosColores {
          * Tecnica de elmininacion de un predicado de una conjunción
          * Cota: no hay una cota exacta, al ser numeros random depende de la aleatoriedad para conseguir la casilla vacia.
          */
-        /*@ maintaining 0 <= casilla[FILA] < DEFAULT_TABLERO_SIZE;
-          @ maintaining 0 <= casilla[COLUMNA] < DEFAULT_TABLERO_SIZE;
+        /*@ maintaining 0 <= casilla[FILA] < DEFAULT_TABLERO_SLOTS;
+          @ maintaining 0 <= casilla[COLUMNA] < DEFAULT_TABLERO_SLOTS;
           @*/
         do {
-            casilla[FILA] = getRandomInt(DEFAULT_TABLERO_SIZE - 1);  // -1 porque retorna [0, n]
-            casilla[COLUMNA] = getRandomInt(DEFAULT_TABLERO_SIZE - 1);  // -1 porque retorna [0, n]
+            casilla[FILA] = getRandomInt(DEFAULT_TABLERO_SLOTS - 1);  // -1 porque retorna [0, n]
+            casilla[COLUMNA] = getRandomInt(DEFAULT_TABLERO_SLOTS - 1);  // -1 porque retorna [0, n]
         } while (!esCasillaVacia(casilla[FILA], casilla[COLUMNA]));
     }
 
@@ -181,8 +465,8 @@ public class LineasRectangulosColores {
      * @param cantidad - cantidad a aumentar en el array contador_de_objetos
      */
     /*@ requires 0 <= objeto <= CANTIDAD_DE_OBJS_EXISTENTES;
-      @ requires 0 < cantidad <= DEFAULT_TABLERO_SIZE*DEFAULT_TABLERO_SIZE;
-      @ ensures contador_de_objetos[objeto] == (\sum int i; 0 <= i && i < DEFAULT_TABLERO_SIZE; (\num_of int j; 0 <= j && j < DEFAULT_TABLERO_SIZE; tablero[i][j] == objeto));
+      @ requires 0 < cantidad <= DEFAULT_TABLERO_SLOTS*DEFAULT_TABLERO_SLOTS;
+      @ ensures contador_de_objetos[objeto] == (\sum int i; 0 <= i && i < DEFAULT_TABLERO_SLOTS; (\num_of int j; 0 <= j && j < DEFAULT_TABLERO_SLOTS; tablero[i][j] == objeto));
       @*/
     public static /*@ pure @*/ void aumentarCantidadDeObjeto(int objeto, int cantidad) {
         contador_de_objetos[objeto] += cantidad;
@@ -224,22 +508,22 @@ public class LineasRectangulosColores {
      */
     /*@ requires tablero != null;
       @ requires proximosObjetos != null;
-      @ ensures DEFAULT_PROXIMOS_OBJETOS_CANTIDAD == (\sum int i; 0 <= i && i < DEFAULT_TABLERO_SIZE; (\num_of int j; 0 <= j && j < DEFAULT_TABLERO_SIZE; tablero[i][j] != EMPTY_SLOT));
+      @ ensures DEFAULT_PROXIMOS_OBJETOS_CANTIDAD == (\sum int i; 0 <= i && i < DEFAULT_TABLERO_SLOTS; (\num_of int j; 0 <= j && j < DEFAULT_TABLERO_SLOTS; tablero[i][j] != EMPTY_SLOT));
       @*/
 	public static /*@ pure @*/ void inicializarTablero() {
         int fila = 0, columna;
 
-        /*@ maintaining 0 <= fila <= DEFAULT_TABLERO_SIZE;
-          @ decreasing DEFAULT_TABLERO_SIZE - fila;
+        /*@ maintaining 0 <= fila <= DEFAULT_TABLERO_SLOTS;
+          @ decreasing DEFAULT_TABLERO_SLOTS - fila;
           @*/
-        while (fila < DEFAULT_TABLERO_SIZE) {
+        while (fila < DEFAULT_TABLERO_SLOTS) {
             columna = 0;
 
-            /*@ maintaining 0 <= columna <= DEFAULT_TABLERO_SIZE;
+            /*@ maintaining 0 <= columna <= DEFAULT_TABLERO_SLOTS;
               @ maintaining (\forall int i; 0 <= i && i < fila; (\forall int j; 0 <= j && j < columna; tablero[i][j] == EMPTY_SLOT));
-              @ decreasing DEFAULT_TABLERO_SIZE - columna;
+              @ decreasing DEFAULT_TABLERO_SLOTS - columna;
               @*/
-            while (columna < DEFAULT_TABLERO_SIZE) {
+            while (columna < DEFAULT_TABLERO_SLOTS) {
                 tablero[fila][columna] = EMPTY_SLOT;
                 columna++;
             }
@@ -249,20 +533,68 @@ public class LineasRectangulosColores {
         agregarProximosObjetos();
     }
 
-    public static void main(String[] args) {
-        // MaquinaDeTrazados panel = new MaquinaDeTrazados(
-        //     PANEL_XMAX,
-        //     normalizedPanelYMAX(),
-        //     PANEL_DEFAULT_TITLE,
-        //     Colores.LIGHT_GRAY
-        // );
-        inicializarTablero();
+    /**
+     * Dibuja los proximos objetos a agregar
+     */
+    //@ requires plt != null;
+    public static /*@ pure @*/ void dibujarProximosObjetos(MaquinaDeTrazados plt) {
+        int i = 0;
+        int SLOT_WIDTH = TABLERO_SIZE / TABLERO_SLOTS;
+        int MARGEN_Y = (int)Math.round(PANEL_YMAX * 0.10); // 5% de margen vertical
+        plt.dibujarString("Próximos:", TABLERO_X_POS - SLOT_WIDTH, MARGEN_Y + SLOT_WIDTH / 2);
 
-        for (int i =0; i < contador_de_objetos.length; i++) {
-            obtenerProximosObjetos();
-            agregarProximosObjetos();
+        int positionFontAncho = 0;
+
+        /*@ maintaining 0 <= i <= proximosObjetos.length;
+          @ maintaining true;
+          @ decreasing proximosObjetos.length - i;
+          @*/
+        while (i < proximosObjetos.length) {
+            positionFontAncho = TABLERO_X_POS + (int)Math.round(SLOT_WIDTH * 1.5) * (i + 1);
+            dibujarElemento(plt, positionFontAncho, MARGEN_Y + SLOT_WIDTH / 2 - ALTO_FUENTE, proximosObjetos[i]);
+
+            i++;
         }
+    }
 
-        Utils.imprimirTableroPorConsola(tablero, DEFAULT_TABLERO_SIZE);
+    /**
+     * Dibuja el puntaje
+     */
+    //@ requires plt != null;
+    public static /*@ pure @*/ void dibujarPuntaje(MaquinaDeTrazados plt) {
+        int SLOT_WIDTH = TABLERO_SIZE / TABLERO_SLOTS;
+        int MARGEN_Y = (int)Math.round(PANEL_YMAX * 0.10); // 5% de margen vertical
+        plt.dibujarString("Puntaje: " + 0, PANEL_XMAX - (int)Math.round(TABLERO_X_POS * 1.5), MARGEN_Y + SLOT_WIDTH / 2);
+    }
+
+    /**
+     * Procedimiento 3: 
+     */
+	public static /*@ pure @*/ void mostrarJuego(MaquinaDeTrazados panel) {
+        dibujarTablero(panel);
+        dibujarProximosObjetos(panel);
+        dibujarPuntaje(panel);
+    }
+    /**
+     * Procedimiento 4: obtiene una jugada por consola y verifica si es valida
+     */
+	public static /*@ pure @*/ void obtenerJugadaValida(int[] jugada, int M, int[][] tablero, int N) {}
+
+    public static void main(String[] args) {
+        PANEL_XMAX = 512;
+        PANEL_YMAX = 512;
+        MaquinaDeTrazados panel = new MaquinaDeTrazados(
+            PANEL_XMAX,
+            normalizedPanelYMAX(),
+            PANEL_DEFAULT_TITLE,
+            Colores.LIGHT_GRAY
+        );
+
+        inicializarTablero();
+        obtenerProximosObjetos();
+        mostrarJuego(panel);
+
+        // dibujarLineaHorizontal(panel, 0, PANEL_YMAX / 2, PANEL_XMAX, Colores.RED);
+        // dibujarLineaVertical(panel, PANEL_XMAX / 2, 0, PANEL_XMAX, Colores.RED);
     }
 }
