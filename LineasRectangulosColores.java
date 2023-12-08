@@ -587,8 +587,9 @@ public class LineasRectangulosColores {
     }
 
     /**
-     * Procedimiento 3: 
+     * Procedimiento 3: Muestra el estado del juego en el panel
      */
+    //@ requires panel != null;
 	public static /*@ pure @*/ void mostrarJuego(MaquinaDeTrazados panel) {
         panel.limpiar();
         dibujarTablero(panel);
@@ -605,7 +606,7 @@ public class LineasRectangulosColores {
         int i = fila - 1;
         int j;
         
-        /*@ maintaining fila - 1 <= i <= fila + 2;
+        /*@ maintaining fila - 1 <= i <= (fila + 1) +1;
           @ decreasing fila + 1 - i;
           @*/
         while (i <= fila + 1) {
@@ -693,6 +694,8 @@ public class LineasRectangulosColores {
      * posicion (jugada[JUGADA_OBJ_A_MOVER_FILA], jugada[JUGADA_OBJ_A_MOVER_COL])
      * a la posicion (jugada[JUGADA_LUGAR_A_MOVER_FILA], jugada[JUGADA_LUGAR_A_MOVER_COL])
      */
+    /*@ requires tablero != null;
+      @*/
 	public static /*@ pure @*/ void moverObjetoSeleccionado() {
         // mover el objeto
         tablero[
@@ -717,16 +720,27 @@ public class LineasRectangulosColores {
      * Función 2: Determina si es fin de juego restando la suma de los objetos
      * existentes en el tablero .
      */
+    //@ requires contador_de_objetos != null;
+    //@ ensures \result <==> (\sum int i; 0 <= i && i <= contador_de_objetos.length; contador_de_objetos[i]) == TABLERO_SLOTS*TABLERO_SLOTS;
 	public static /*@ pure @*/ boolean esFinDeJuego() {
         int i = 0, suma = 0;
-        for(i = 0; i < contador_de_objetos.length; i++) {
+
+        /*@ maintaining 0 <= i <= contador_de_objetos.length;
+          @ maintaining (\sum int k; 0 <= k && k < i; contador_de_objetos[k]) == suma;
+          @*/
+        while (i < contador_de_objetos.length) {
             suma += contador_de_objetos[i];
+
+            i++;
         }
 
         return suma == TABLERO_SLOTS*TABLERO_SLOTS;
     }
 
-    public static void procesarFinalDeJuego(MaquinaDeTrazados panel) {
+    /**
+     * Mensaje de despedida y finalizar el panel
+     */
+    public static /*@ pure @*/ void procesarFinalDeJuego(MaquinaDeTrazados panel) {
         panel.terminar();
 
         System.out.println("\n\tEL JUEGO HA FINALIZADO\n");
@@ -737,7 +751,10 @@ public class LineasRectangulosColores {
         System.out.println("\n\t" + PANEL_DEFAULT_TITLE);
     }
 
-    public static void iniciarJuego() {
+    /**
+     * Inicia el flujo del juego
+     */
+    public static /*@ pure @*/ void iniciarJuego() {
         MaquinaDeTrazados panel = new MaquinaDeTrazados(
             PANEL_XMAX,
             normalizedPanelYMAX(),
@@ -779,7 +796,7 @@ public class LineasRectangulosColores {
         procesarFinalDeJuego(panel);
     }
 
-    public static void main(String[] args) {
+    public static /*@ pure @*/ void main(String[] args) {
         iniciarJuego();
         /**
          * Next release (V 1.1.Alfa):
