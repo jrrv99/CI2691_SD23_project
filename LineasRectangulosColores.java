@@ -15,7 +15,7 @@ public class LineasRectangulosColores {
     public static final int PANEL_BARRA_TITULO_ALTURA = 38; // alto de la barra de titulo 
     public static final int PANEL_DEFAULT_XMAX = 512;
     public static final int PANEL_DEFAULT_YMAX = 512;
-    public static final String PANEL_DEFAULT_TITLE = "Lineas Rectangulos Colores (V 1.0.Beta)";
+    public static final String PANEL_DEFAULT_TITLE = "Lineas Rectangulos Colores | By JR Labs (V 1.0.Beta)";
     
     public static int PANEL_YMAX = PANEL_DEFAULT_YMAX;
     public static int PANEL_XMAX = PANEL_DEFAULT_XMAX;
@@ -734,7 +734,7 @@ public class LineasRectangulosColores {
         System.out.println("\tPronto lanzaremos una release con nuevas features y fixes");
         System.out.println("\tEstad atentos! :)");
 
-        System.out.println(PANEL_DEFAULT_TITLE);
+        System.out.println("\n\t" + PANEL_DEFAULT_TITLE);
     }
 
     public static void iniciarJuego() {
