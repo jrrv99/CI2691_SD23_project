@@ -1,11 +1,13 @@
 import java.util.Random;
 import java.awt.Font;
-// import java.util.Scanner;
+import java.util.Scanner;
 
 public class LineasRectangulosColores {
     /******************************************************/
     /********************** GLOBALES **********************/
     /******************************************************/
+
+    public static Scanner consola = new Scanner(System.in);
 
     /**
      * Constantes y variables para la configuracion del Panel
@@ -61,6 +63,19 @@ public class LineasRectangulosColores {
         Colores.ORANGE,
         Colores.MAGENTA,
     };
+
+	/**
+	 * Jugada valida:
+	 * JUGADA_OBJ_A_MOVER_FILA: representa la fila del objeto a mover
+     * JUGADA_OBJ_A_MOVER_COL: representa la columna del objeto a mover
+     * JUGADA_LUGAR_A_MOVER_FILA: representa la fila del cuadro a donde se va a mover
+     * JUGADA_LUGAR_A_MOVER_COL: representa la fila del cuadro a donde se va a mover
+	 */
+	public static final int JUGADA_OBJ_A_MOVER_FILA = 0;
+	public static final int JUGADA_OBJ_A_MOVER_COL = 1;
+	public static final int JUGADA_LUGAR_A_MOVER_FILA = 2;
+	public static final int JUGADA_LUGAR_A_MOVER_COL = 3;
+	public static int[] jugada = new int[4];
 
     /**
      * contador_de_objetos: Representa la cantidad de cada objeto en el
@@ -302,12 +317,12 @@ public class LineasRectangulosColores {
         int SLOT_WIDTH = TABLERO_SIZE / TABLERO_SLOTS;
 
         // desplaza en x desde TABLERO_X_POS el tamaño del slot 1.5 filas, es decir en la mitad de la fila correspondiente
-        int SLOT_CENTER_FILA = TABLERO_X_POS + fila * SLOT_WIDTH + (int)Math.round(SLOT_WIDTH / 2);
+        int SLOT_CENTER_FILA = TABLERO_Y_POS + fila * SLOT_WIDTH + (int)Math.round(SLOT_WIDTH / 2);
         // desplaza en y desde TABLERO_Y_POS el tamaño del slot 1.5 columnas, es decir en la mitad de la columna correspondiente
-        int SLOT_CENTER_COLUMNA = TABLERO_Y_POS + columna * SLOT_WIDTH + (int)Math.round(SLOT_WIDTH / 2);
+        int SLOT_CENTER_COLUMNA = TABLERO_X_POS + columna * SLOT_WIDTH + (int)Math.round(SLOT_WIDTH / 2);
 
-        coords[0] = SLOT_CENTER_FILA;
-        coords[1] = SLOT_CENTER_COLUMNA;
+        coords[0] = SLOT_CENTER_COLUMNA;
+        coords[1] = SLOT_CENTER_FILA;
     }
 
     /**
@@ -575,10 +590,150 @@ public class LineasRectangulosColores {
         dibujarProximosObjetos(panel);
         dibujarPuntaje(panel);
     }
+
+    /*@ requires tablero != null;
+      @ requires 0 <= fila < tablero.length;
+      @ requires 0 <= columna < tablero.length;
+      @*/
+    public static /*@ pure @*/ boolean sePuedeMover(int fila, int columna) {
+        int i = fila - 1;
+        int j;
+        
+        /*@ maintaining fila - 1 <= i <= fila + 2;
+          @ decreasing fila + 1 - i;
+          @*/
+        while (i <= fila + 1) {
+            j = columna - 1;
+
+            /*@ maintaining columna - 1 <= j <= columna + 2;
+              @ decreasing columna + 1 - j;
+              @*/
+            while (j <= columna + 1) {
+                // Excluir el objeto seleccionado
+                if (i == fila && j == columna) {
+                    j++;
+                    continue;
+                }
+
+                // Comprobar indices dentro de rango (avoid out of bounds)
+                if (i >= 0 && i < tablero.length && j >= 0 && j < tablero.length) {
+                    if (tablero[i][j] == EMPTY_SLOT) return true;
+                }
+
+                j++;
+            }
+            i++;
+        }
+
+        return false;
+    }
+
     /**
      * Procedimiento 4: obtiene una jugada por consola y verifica si es valida
      */
-	public static /*@ pure @*/ void obtenerJugadaValida(int[] jugada, int M, int[][] tablero, int N) {}
+	public static /*@ pure @*/ void obtenerJugadaValida() {
+        boolean jugadaInvalida = false, casillaInvalida = false;
+        System.out.println("Introduzca los datos del objeto que desea mover");
+
+        do {
+            System.out.print("fila: ");
+            jugada[JUGADA_OBJ_A_MOVER_FILA] = consola.nextInt();
+            System.out.print("Columna: ");
+            jugada[JUGADA_OBJ_A_MOVER_COL] = consola.nextInt();
+
+            System.out.println(jugada[JUGADA_OBJ_A_MOVER_FILA] + "," + jugada[JUGADA_OBJ_A_MOVER_COL]);
+            System.out.println(tablero[
+                jugada[JUGADA_OBJ_A_MOVER_FILA]
+            ][
+                jugada[JUGADA_OBJ_A_MOVER_COL]
+            ]);
+
+            casillaInvalida = esCasillaVacia(
+                jugada[JUGADA_OBJ_A_MOVER_FILA],
+                jugada[JUGADA_OBJ_A_MOVER_COL]
+            );
+
+            if(casillaInvalida) {
+                System.out.println("La casilla está vacia");
+                System.out.println("Debe seleccionar un objeto");
+                continue;
+            }
+
+            jugadaInvalida = !sePuedeMover(
+                jugada[JUGADA_OBJ_A_MOVER_FILA],
+                jugada[JUGADA_OBJ_A_MOVER_COL]
+            );
+
+            if(jugadaInvalida) {
+                System.out.println("El objeto no puede ser movido");
+                System.out.println("Debe que tener al menos una casilla vacia a su alrededor.");
+                System.out.println("Por favor introduzca un objeto con al menos una casilla libre a su alrrededor.");
+            }
+        } while (jugadaInvalida || casillaInvalida);
+
+        System.out.println("Introduzca los datos de la casilla a la que desea mover el objeto");
+
+        do {
+            System.out.print("fila: ");
+            jugada[JUGADA_LUGAR_A_MOVER_FILA] = consola.nextInt();
+            System.out.print("Columna: ");
+            jugada[JUGADA_LUGAR_A_MOVER_COL] = consola.nextInt();
+
+            System.out.println(jugada[JUGADA_LUGAR_A_MOVER_FILA] + "," + jugada[JUGADA_LUGAR_A_MOVER_COL]);
+            System.out.println(tablero[
+                jugada[JUGADA_LUGAR_A_MOVER_FILA]
+            ][
+                jugada[JUGADA_LUGAR_A_MOVER_COL]
+            ]);
+
+            jugadaInvalida = !esCasillaVacia(
+                jugada[JUGADA_LUGAR_A_MOVER_FILA],
+                jugada[JUGADA_LUGAR_A_MOVER_COL]
+            );
+
+            if(jugadaInvalida) {
+                System.out.println("La casilla debe estar vacia");
+                System.out.println("Por favor introduzca una casilla libre.");
+            }
+        } while (jugadaInvalida);
+    }
+
+    /**
+     * Procedimiento 5: realizar la jugada obtenida moviendo el objeto en la
+     * posicion (jugada[JUGADA_OBJ_A_MOVER_FILA], jugada[JUGADA_OBJ_A_MOVER_COL])
+     * a la posicion (jugada[JUGADA_LUGAR_A_MOVER_FILA], jugada[JUGADA_LUGAR_A_MOVER_COL])
+     */
+	public static /*@ pure @*/ void moverObjetoSeleccionado() {
+        // mover el objeto
+        tablero[
+            jugada[JUGADA_LUGAR_A_MOVER_FILA]
+        ][
+            jugada[JUGADA_LUGAR_A_MOVER_COL]
+        ] = tablero[
+            jugada[JUGADA_OBJ_A_MOVER_FILA]
+        ][
+            jugada[JUGADA_OBJ_A_MOVER_COL]
+        ];
+
+        // Vaciar lugar donde estaba el objeto
+        tablero[
+            jugada[JUGADA_OBJ_A_MOVER_FILA]
+        ][
+            jugada[JUGADA_OBJ_A_MOVER_COL]
+        ] = EMPTY_SLOT;
+    }
+
+    /**
+     * Función 2
+     */
+	public static /*@ pure @*/ boolean esFinDeJuego() {
+        int i = 0, suma = 0;
+        for(i = 0; i < contador_de_objetos.length; i++) {
+            suma += contador_de_objetos[i];
+        }
+
+        return suma == TABLERO_SLOTS*TABLERO_SLOTS;
+    }
 
     public static void main(String[] args) {
         PANEL_XMAX = 512;
@@ -592,9 +747,31 @@ public class LineasRectangulosColores {
 
         inicializarTablero();
         obtenerProximosObjetos();
-        mostrarJuego(panel);
+        while (!esFinDeJuego()) {
+            // Mostrar-Estado-del-Juego;
+            mostrarJuego(panel);
+            Utils.imprimirTableroPorConsola(tablero, 9);
 
-        // dibujarLineaHorizontal(panel, 0, PANEL_YMAX / 2, PANEL_XMAX, Colores.RED);
-        // dibujarLineaVertical(panel, PANEL_XMAX / 2, 0, PANEL_XMAX, Colores.RED);
+            // Obtener-Jugada-Valida;
+            obtenerJugadaValida();
+
+            // Mover-Objeto-Seleccionado;
+            moverObjetoSeleccionado();
+
+            // Mostrar-Estado-del-Juego; (ACTUALIZAR)
+            panel.limpiar();
+            mostrarJuego(panel);
+            Utils.imprimirTableroPorConsola(tablero, 9);
+
+            // Agregar-Proximos-Objetos;
+            agregarProximosObjetos();
+
+            // Obtener-Proximos-Objetos;
+            obtenerProximosObjetos();
+
+            // Mostrar-Estado-del-Juego; (ACTUALIZAR)
+            panel.limpiar();
+            mostrarJuego(panel);
+        }
     }
 }
