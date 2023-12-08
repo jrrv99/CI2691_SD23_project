@@ -102,4 +102,9 @@ public class Utils {
             fila++;
         }
     }
+
+    public static void cleanConsole(String... arg) {
+        System.out.print("\033[H\033[2J");  
+        System.out.flush();  
+    }
 } 
