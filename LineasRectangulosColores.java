@@ -38,7 +38,7 @@ public class LineasRectangulosColores {
     /**
      * Enum for objects representation in array indexes
      * constantes para la representacion de los objetos 
-     * TODO: Use Enum DSE for good practices
+     * TODO: Use Enum DSE for good practices (Enum doesnt work "JML BUG")
      * TODO: CANTIDAD_DE_OBJS_EXISTENTES = Objetos.values().length
      */
     public static final int CANTIDAD_DE_OBJS_EXISTENTES = 7; // cantidad de objetos cuadrado mas 6 circulos
@@ -559,7 +559,7 @@ public class LineasRectangulosColores {
     public static /*@ pure @*/ void dibujarProximosObjetos(MaquinaDeTrazados plt) {
         int i = 0;
         int SLOT_WIDTH = TABLERO_SIZE / TABLERO_SLOTS;
-        int MARGEN_Y = (int)Math.round(PANEL_YMAX * 0.10); // 5% de margen vertical
+        int MARGEN_Y = (int)Math.round(PANEL_YMAX * 0.10); // 10% de margen vertical
         plt.dibujarString("Próximos:", TABLERO_X_POS - SLOT_WIDTH, MARGEN_Y + SLOT_WIDTH / 2);
 
         int positionFontAncho = 0;
@@ -582,7 +582,7 @@ public class LineasRectangulosColores {
     //@ requires plt != null;
     public static /*@ pure @*/ void dibujarPuntaje(MaquinaDeTrazados plt) {
         int SLOT_WIDTH = TABLERO_SIZE / TABLERO_SLOTS;
-        int MARGEN_Y = (int)Math.round(PANEL_YMAX * 0.10); // 5% de margen vertical
+        int MARGEN_Y = (int)Math.round(PANEL_YMAX * 0.10); // 10% de margen vertical
         plt.dibujarString("Puntaje: " + 0, PANEL_XMAX - (int)Math.round(TABLERO_X_POS * 1.5), MARGEN_Y + SLOT_WIDTH / 2);
     }
 
